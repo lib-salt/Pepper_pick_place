@@ -1,0 +1,13 @@
+Week 1:
+  Mon 27th Jan:
+    - Met with Mike, ROS drivers struggle to conncet with Pepper, VM on laptop
+  Wed 29th:
+    - search for papers for lit review started
+
+Week 2:
+  Tues 4th Feb:
+    - Developed Object detector on laptop
+  Thurs 6th Feb:
+    - Met with supervisor, will focus on connection through sockets
+  Fri 7th Feb:
+    - Develop code to test with Pepper to see if object recognition works
