@@ -20,3 +20,6 @@ Week 3:
     - Worked on laptop within VM tried to get NAOqi library to work, will try to get window version with Mike working
   Thurs 13th Feb:
     - Meeting with supervisor, transferring frames to a file to be viewed and processed.
+    - Got conda environments setup and qi import to work
+  Fri 14th Fev:
+    - Working on getting camera feed and applying object detector, would freeze and need to create a third script to resolve this
