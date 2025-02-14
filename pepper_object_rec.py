@@ -7,7 +7,7 @@ import mediapipe as mp
 
 class ObjectDetector:
     def __init__(self):
-        self.model_path = 'efficientdet_lite0.tflite'
+        self.model_path = r'c:\Users\25276034\OneDrive - Edge Hill University\Year 3\Final Project\code\efficientdet_lite0.tflite'
 
         self.BaseOptions = mp.tasks.BaseOptions
         self.ObjectDetector = mp.tasks.vision.ObjectDetector
@@ -22,6 +22,9 @@ class ObjectDetector:
             max_results=5,
             score_threshold=0.5,
         )
+
+        self.detector = self.ObjectDetector.create_from_options(self.options)
+
 
     def detect_objects(self, frame):
         image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -51,7 +54,7 @@ class ObjectDetector:
         return frame
 
     def start_video_stream(self):
-        server_ip = '192.168.x.x'  # Pepper's IP
+        server_ip = '0.0.0.0'  # laptop IP
         server_port = 12345 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind((server_ip, server_port))
@@ -73,7 +76,7 @@ class ObjectDetector:
                 frame_data += client_socket.recv(4096)
 
             # Apply object recognition
-            frame = pickle.loads(frame_data)
+            frame = pickle.loads(frame_data, encoding='latin1')
             processed_frame = self.detect_objects(frame)
 
             # Display frame
