@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import threading
-import pickle
+import signal
 import socket
 import struct
 import time 
@@ -10,7 +10,7 @@ sys.path.append(r"D:\pynaoqi-python2.7-2.5.5.5-win32-vs2013\lib")
 from naoqi import ALProxy  
 
 # Pepper IP address and port
-ip = '192.168.245.57'
+ip = '192.168.245.2'
 port = 9559
 
 frame = None
@@ -26,6 +26,11 @@ def get_video_feed():
         fps = 30
         name = "pepper_camera"
         cam_name = video_service.subscribeCamera(name, 0, resolution, color_space, fps)
+        if not cam_name:
+            print("Error: Failed to subscribe to Pepper's camera.")
+            return
+        
+        print("Camera subscription successful: ", cam_name)
 
         while True:
             new_frame = video_service.getImageRemote(cam_name)
@@ -33,10 +38,13 @@ def get_video_feed():
                 frame = new_frame
             else:
                 print("Failed to get frame")
+                video_service.unsubscribe(cam_name)
+                cam_name = None 
             # time.sleep(0.1)
 
     except Exception as e:
         print("Error processing frame:", e)
+        
 
     finally:
         if video_service and cam_name:
@@ -47,7 +55,7 @@ def stream_feed():
     global frame
 
     # Create socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.connect(('127.0.0.1', 12345))
 
     while True:
@@ -66,7 +74,8 @@ def stream_feed():
 
                 _, buffer = cv2.imencode('.jpg', image_rgb)
                 frame_data = buffer.tobytes()
-                sock.sendall(frame_data)
+                frame_size = struct.pack("!I", len(frame_data))
+                sock.sendall(frame_size + frame_data)
 
 
             except Exception as e:
@@ -80,3 +89,13 @@ if __name__ == '__main__':
     video_thread.start()
 
     stream_feed()
+
+def cleanup(signum, frame):
+    global video_service, cam_name
+    if video_service and cam_name:
+        print("\nUnsubscribing from camera and shutting down...")
+        video_service.unsubscribe(cam_name)
+    exit(0)
+
+signal.signal(signal.SIGINT, cleanup)
+signal.signal(signal.SIGTERM, cleanup)
