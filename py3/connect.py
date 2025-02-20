@@ -1,5 +1,6 @@
 import socket 
 import threading
+import struct
 from view_object_rec import process_frame
 
 
@@ -25,17 +26,33 @@ def start_server():
 
 def handle_client(client_socket):
     while True:
-        frame_data = 'b'
-        while len(frame_data) < buffer_size:
-            packet = client_socket.recv(buffer_size)
-            if not packet:
-                break
-            frame_data += packet
+        try:
+            # Read the first 4 bytes to get the frame size
+            frame_size_data = client_socket.recv(4)
+            if not frame_size_data:
+                break  # Client disconnected
+            
+            # Unpack the frame size (big-endian 4-byte integer)
+            frame_size = struct.unpack("!I", frame_size_data)[0]
 
-        if not frame_data:
+            # Receive the exact amount of bytes specified in frame_size
+            frame_data = b""
+            while len(frame_data) < frame_size:
+                packet = client_socket.recv(frame_size - len(frame_data))
+                if not packet:
+                    break  # Connection lost
+                frame_data += packet
+
+            if len(frame_data) != frame_size:
+                print("Error: Incomplete frame received.")
+                continue  # Skip processing this frame
+
+            # Process the full frame
+            process_frame(frame_data)
+
+        except Exception as e:
+            print(f"Error in handle_client: {e}")
             break
-
-        process_frame(frame_data)
 
     client_socket.close()
 
