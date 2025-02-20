@@ -55,7 +55,7 @@ def stream_feed():
     global frame
 
     # Create socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect(('127.0.0.1', 12345))
 
     while True:
@@ -83,13 +83,6 @@ def stream_feed():
         else:
             time.sleep(0.1)
 
-if __name__ == '__main__':
-    video_thread = threading.Thread(target=get_video_feed)
-    video_thread.daemon = True
-    video_thread.start()
-
-    stream_feed()
-
 def cleanup(signum, frame):
     global video_service, cam_name
     if video_service and cam_name:
@@ -99,3 +92,12 @@ def cleanup(signum, frame):
 
 signal.signal(signal.SIGINT, cleanup)
 signal.signal(signal.SIGTERM, cleanup)
+
+if __name__ == '__main__':
+    video_thread = threading.Thread(target=get_video_feed)
+    video_thread.daemon = True
+    video_thread.start()
+
+    stream_feed()
+
+
