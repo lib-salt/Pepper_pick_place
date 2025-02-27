@@ -1,0 +1,22 @@
+Launch ROS driver NAOqi 2.8 or lower:
+ros2 launch naoqi_driver naoqi_driver.launch.py nao_ip:=<robot_host> qi_listen_url:=tcp://0.0.0.0:0
+
+Launch ROS driver NAOqi 2.9+:
+ros2 launch naoqi_driver naoqi_driver.launch.py nao_ip:=<robot_host> nao_username:=nao nao_password:=<robot_password> qi_listen_url:=tcp://0.0.0.0:0
+
+Directly from robot or machine running virtual robot:
+ros2 launch naoqi_driver naoqi_driver.launch.py
+
+Check if driver is connected:
+ros2 node info /naoqi_driver
+
+Pepper say hello:
+ros2 topic pub --once /speech std_msgs/String "data: hello"
+
+subscribe to cameras:
+In doc>source>topics.rst look at the topics for Pepper
+    * /pepper_robot/camera/bottom/image_raw/theora [theora_image_transport/Packet]
+    * /pepper_robot/camera/ir/camera_info [sensor_msgs/CameraInfo]
+    * /pepper_robot/camera/depth/image_raw/compressed/parameter_descriptions [dynamic_reconfigure/ConfigDescription]
+    * /pepper_robot/camera/ir/image_raw/compressed [sensor_msgs/CompressedImage]
+    * /pepper_robot/camera/depth/image_raw [sensor_msgs/Image]
