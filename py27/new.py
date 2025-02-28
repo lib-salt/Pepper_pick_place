@@ -30,9 +30,9 @@ else:
 # Method to close on command
 def cleanup(signal, frame):
     print("\nStopping video stream...")
-    video_proxy.unsubscribe(cam_name)  # Unsubscribe from camera
+    video_proxy.unsubscribe(cam_name)  
     print("\nUnsubscribing from camera and shutting down...")
-    sock.close()  # Close socket
+    sock.close()  
     sys.exit(0)
 
 signal.signal(signal.SIGINT, cleanup)
@@ -44,7 +44,7 @@ print("Streaming video from robot...")
 
 try:
     while True:
-        # # Get the frame from the robot
+        # Get the frame from the robot
         new_frame = video_proxy.getImageRemote(cam_name)
 
         if new_frame is not None:
