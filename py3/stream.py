@@ -4,6 +4,7 @@ import socket
 import threading
 import struct
 import time
+import signal
 from view_object_rec import process_frame
 
 stop_event = threading.Event()
@@ -18,7 +19,7 @@ def get_frames():
     global latest_frame
     while True:
         try:
-            data, addr = sock.recvfrom(65536)
+            data, _ = sock.recvfrom(65536)
             size = struct.unpack("L", data[:4])[0]
             frame_data = data[4:size+4]
 
@@ -43,7 +44,7 @@ def process_frames():
                 frame = latest_frame.copy()
             else:
                 print("No frame available for processing.")
-                time.sleep(0.1)  # Small delay to avoid busy-waiting
+                time.sleep(0.1)  
 
         if frame is not None:
             try:
@@ -61,14 +62,14 @@ process_thread.start()
 
 print("Receiving and processing video...")
 
-try:
-    while True:
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            print("Exiting...")
-            stop_event.set()  # Signal threads to stop
-            break
-except KeyboardInterrupt:
-    print("Interrupted! Closing...")
+while True:
+    if cv2.waitKey(1) & 0xFF == ord('q'): 
+        print("Exiting... (q key pressed)")
+        stop_event.set()  
+        break
+
+    if stop_event.is_set():
+        break
 
 
 receive_thread.join()
