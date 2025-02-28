@@ -17,7 +17,7 @@ server_ip = "127.0.0.1"
 
 # Subscribe to Pepper camera 
 video_proxy = ALProxy("ALVideoDevice", ip, port)
-resolution = 2  
+resolution = 1  
 color_space = 11
 fps = 30
 name = "pepper_camera"
@@ -56,16 +56,14 @@ try:
             image_rgb = cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)
    
             # Encode as JPEG
-            _, buffer = cv2.imencode('.jpg', image_rgb, [cv2.IMWRITE_JPEG_QUALITY, 80])
+            _, buffer = cv2.imencode('.jpg', image_rgb, [cv2.IMWRITE_JPEG_QUALITY, 60])
 
             # Send frame
-            print("Sending frame of size: ", len(buffer))
             sock.sendto(struct.pack("L", len(buffer)) + buffer.tobytes(), (server_ip, 8089))
 
             # Release the frame to prevent memory buildup
             video_proxy.releaseImage(cam_name)
 
-        print("Failed to retrieve frame!")
         continue
 
 except Exception as e:
