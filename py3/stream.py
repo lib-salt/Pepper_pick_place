@@ -19,10 +19,8 @@ def get_frames():
     while True:
         try:
             data, addr = sock.recvfrom(65536)
-            print(f"Received {len(data)} bytes of data")
             size = struct.unpack("L", data[:4])[0]
             frame_data = data[4:size+4]
-            print(f"Frame size extracted: {size}")
 
             frame = cv2.imdecode(np.frombuffer(frame_data, dtype=np.uint8), cv2.IMREAD_COLOR)
 
@@ -30,11 +28,9 @@ def get_frames():
                 print("Error: Received empty frame.")
                 continue
 
-            print("Received frame!")
-
             with lock:
                 latest_frame = frame  
-                print("Frame updated!")
+
         except Exception as e:
             print(f"Error receiving frame: {e}")
 
@@ -45,7 +41,6 @@ def process_frames():
         with lock:
             if latest_frame is not None:
                 frame = latest_frame.copy()
-                print("Processing frame...")  
             else:
                 print("No frame available for processing.")
                 time.sleep(0.1)  # Small delay to avoid busy-waiting
@@ -65,8 +60,6 @@ process_thread = threading.Thread(target=process_frames, daemon=True)
 process_thread.start()
 
 print("Receiving and processing video...")
-print("Threads running? Receiving:", receive_thread.is_alive(), "Processing:", process_thread.is_alive())
-
 
 try:
     while True:
@@ -77,7 +70,7 @@ try:
 except KeyboardInterrupt:
     print("Interrupted! Closing...")
 
-# **Ensure threads exit properly**
+
 receive_thread.join()
 process_thread.join()
 
