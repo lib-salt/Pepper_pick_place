@@ -32,4 +32,15 @@ Week 4:
     - New code for frames created, ready to be tested.
   Wed 19th Feb:
     - Interim report continued added diagrams, comparison and changes with plan, ready to give to supervisor for feedback.
-    
+  Thurs 20th Feb:
+    - Pepper feed displayed, significant lag and latency
+
+Week 5:
+  Mon 24th Feb:
+    - Imterim report almost finished, just video left
+  Wed 26th Feb:
+    - Researched methods to visualise objects in real space
+  Thurs 27th Feb:
+    - Anaconda environment gone, fixes made
+  Friday 28th Feb:
+    - Pepper camer latency resolve, can show real time object detection.
