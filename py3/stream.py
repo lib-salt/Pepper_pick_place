@@ -9,17 +9,29 @@ from view_object_rec import process_frame
 
 stop_event = threading.Event()
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.bind(('127.0.0.1', 8089))
+# Socket for live video feed
+video_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+video_sock.bind(('127.0.0.1', 8089))
+
+# socket to send object loaction
+location_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 latest_frame = None
 lock = threading.Lock()
+
+# Pepper camera calibration variables
+FOV_X = 60.97  # Horizontal field of view in degrees
+IMAGE_WIDTH = 320  
+
+def pixel_to_angle(x_pixel):
+    angle = (x_pixel - IMAGE_WIDTH / 2) * (FOV_X / IMAGE_WIDTH)
+    return angle
 
 def get_frames():
     global latest_frame
     while True:
         try:
-            data, _ = sock.recvfrom(65536)
+            data, _ = video_sock.recvfrom(65536)
             size = struct.unpack("L", data[:4])[0]
             frame_data = data[4:size+4]
 
@@ -44,13 +56,29 @@ def process_frames():
                 frame = latest_frame.copy()
             else:
                 print("No frame available for processing.")
-                time.sleep(0.1)  
+                time.sleep(0.1)
+                continue
+
+        object_center = process_frame(frame)
+
+        if object_center:
+            x_cen, y_cen = object_center
+            object_angle = pixel_to_angle(x_cen)
+            send_object_location(object_angle)
 
         if frame is not None:
             try:
                 process_frame(frame)
             except Exception as e:
                 print(f"Error in process_frame: {e}")
+
+
+def send_object_location(angle):
+    try:
+        data = str(angle).encode()
+        location_sock.sendto(data, ("127.0.0.1", 9090))
+    except Exception as e:
+        print(f"Error sending object location: {e}")
  
 
 # Start threads for receiving and processing frames
@@ -75,5 +103,6 @@ while True:
 receive_thread.join()
 process_thread.join()
 
-sock.close()
+video_sock.close()
+location_sock.close()
 cv2.destroyAllWindows()
