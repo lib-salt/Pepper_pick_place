@@ -33,6 +33,7 @@ def process_frame(frame):
 
         for detection in result.detections:
             category = detection.categories[0].category_name
+
             if category in ALLOWED_OBJECTS:
                 bbox = detection.bounding_box
                 x, y, w, h = int(bbox.origin_x), int(bbox.origin_y), int(bbox.width), int(bbox.height)
@@ -40,8 +41,15 @@ def process_frame(frame):
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
                 cv2.putText(frame, category, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
+                # Calculate object center
+                x_cen = x + w // 2
+                y_cen = y + h // 2
+                object_center = (x_cen, y_cen)
+
         cv2.imshow('Pepper Camera Feed', frame)
         cv2.waitKey(1) 
+
+        return object_center
 
     except Exception as e:
         print(f"Error processing frame: {e}")
