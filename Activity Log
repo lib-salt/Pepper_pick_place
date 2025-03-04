@@ -49,3 +49,7 @@ Week 6:
   Mon 3rd March:
     - Started to structure/map dissertation
     - Created code for to test moving towards object, ready for testing.
+  Wed 4th March:
+    - Pepper will follow object using a set distance
+    - Need to check how to get pepper to move the correct distance
+    - Need to look at angle for arm movement as tried to go backwards
