@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
 import mediapipe as mp
+import matplotlib as plt
 
 # Path to mediapipe model
-model_path = r'c:\Users\25276034\OneDrive - Edge Hill University\Year 3\Final Project\code\py3\efficientdet_lite0.tflite'
+model_path = r"C:\Users\25276034.EDGEHILL\OneDrive - Edge Hill University\Year 3\Final Project\code\py3\efficientdet_lite0.tflite"
 
 # Set up mediapipe model
 BaseOptions = mp.tasks.BaseOptions
@@ -27,9 +28,12 @@ def process_frame(frame):
     try:
         if frame is None:
             print("Error: Received empty frame.")
-            return
+            return None
+        
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
         result = detector.detect(mp_image)
+
+        object_center = None
 
         for detection in result.detections:
             category = detection.categories[0].category_name
@@ -50,8 +54,3 @@ def process_frame(frame):
         cv2.waitKey(1) 
 
         return object_center
-
-    except Exception as e:
-        print(f"Error processing frame: {e}")
-
-
