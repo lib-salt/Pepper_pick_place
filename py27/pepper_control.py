@@ -14,13 +14,16 @@ def move_towards_object(motion_proxy, angle):
     try:
         turn_radians = math.radians(angle)
 
+        # Turn Pepper head to focus on the object
+        motion_proxy.setAngles(["HeadYaw"], [turn_radians], 0.1)
+
         # Rotate Pepper to object
         motion_proxy.moveTo(0, 0, turn_radians)
 
         # Move a fixed distance
         motion_proxy.moveTo(0.5, 0, 0)
 
-        while is_moving():
+        while is_moving(motion_proxy):
             time.sleep(0.1)  # Wait for Pepper to finish moving
 
         
@@ -28,3 +31,10 @@ def move_towards_object(motion_proxy, angle):
 
     except Exception as e:
         print("Error while moving Pepper: ", e)
+
+def move_arm(motion_proxy, height_angle):
+    try:
+        motion_proxy.setAngles("RShoulderPitch", height_angle, 0.5)
+        
+    except Exception as e:
+        print("Error while moving right arm: ", e)
