@@ -19,14 +19,6 @@ location_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 latest_frame = None
 lock = threading.Lock()
 
-# Pepper camera calibration variables
-FOV_X = 60.97  # Horizontal field of view in degrees
-IMAGE_WIDTH = 320  
-
-def pixel_to_angle(x_pixel):
-    angle = (x_pixel - IMAGE_WIDTH / 2) * (FOV_X / IMAGE_WIDTH)
-    return angle
-
 def get_frames():
     global latest_frame
     while True:
@@ -57,25 +49,24 @@ def process_frames():
             else:
                 print("No frame available for processing.")
                 time.sleep(0.1)
-                continue
+                continue  
 
-        object_center = process_frame(frame)
+        object_center = process_frame(frame) 
 
         if object_center:
             x_cen, y_cen = object_center
-            object_angle = pixel_to_angle(x_cen)
-            send_object_location(object_angle)
+            send_object_location(x_cen, y_cen)
 
         if frame is not None:
             try:
                 process_frame(frame)
             except Exception as e:
-                print(f"Error in process_frame: {e}")
+                print(f"Error in process_frame: {e}") 
 
 
-def send_object_location(angle):
+def send_object_location(x_cen, y_cen):
     try:
-        data = str(angle).encode()
+        data =  f"{x_cen},{y_cen}".encode() 
         location_sock.sendto(data, ("127.0.0.1", 9090))
     except Exception as e:
         print(f"Error sending object location: {e}")
