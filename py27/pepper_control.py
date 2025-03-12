@@ -95,3 +95,36 @@ def pixel_to_3d(x, y, depth):
     Z = depth # Depth from the depth map
     
     return X, Y, Z
+
+def close_stop(Z, motion_proxy, stop_distance=0.2):
+    if Z <= stop_distance:
+        motion_proxy.stopMove()
+        print("Object is ", Z, "m away")
+        return True
+    return False
+
+def track_object(x, y, motion_proxy):
+    pan_angle = (x - c_x) * 0.003  
+    tilt_angle = (y - c_y) * 0.003
+    motion_proxy.setAngles(["HeadYaw", "HeadPitch"], [pan_angle, tilt_angle], 0.2)
+
+def get_transform(motion_proxy):
+    # Get co-ordinates in robot frame
+    transform = motion_proxy.getTransform("CameraTop", 1, True)
+    return transform
+
+def transform_to_frame(camera_coords, motion_proxy):
+    transform = get_transform(motion_proxy)
+
+    rotation_matrix = np.array(transform[0])
+    translation_vector = np.array(transform[1])
+
+    camera_coords_np = np.array(camera_coords)
+    transformed_coords = np.dot(rotation_matrix, camera_coords_np) + translation_vector
+    return transformed_coords
+
+def move_towards_object(robot_coords, motion_proxy):
+    x, y, z = robot_coords
+    x = x - 0.1 # 10cm away
+    motion_proxy.moveTo(x, y, z)
+
