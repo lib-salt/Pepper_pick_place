@@ -49,7 +49,7 @@ def cleanup(signal, frame):
     video_proxy.unsubscribe(image_cam)  
     video_proxy.unsubscribe(depth_cam) 
     print("\nUnsubscribing from camera and shutting down...")
-    # awareness_proxy.resumeAwareness()
+    awareness_proxy.resumeAwareness()
     video_sock.close()
     location_sock.close() 
     motion_proxy.stopMove()
@@ -87,7 +87,7 @@ def get_feed():
             continue
 
     except Exception as e:
-        print("Error:", e)
+        print("Error: ", e)
         cleanup(None, None)
 
 
@@ -126,18 +126,40 @@ def move_towards():
                 x_cen = float(coords[0])
                 y_cen = float(coords[1])
 
-                depth = get_depth(x_cen, y_cen)
-                print("Co-ordinates: ", x_cen, y_cen, depth)
+                # depth = get_depth(x_cen, y_cen)
+                # print("Co-ordinates: ", x_cen, y_cen, depth)
 
             else:
                 print("No data received.")
 
+
             x_coord, y_coord = map_top_to_depth_camera(x_cen, y_cen)
             depth = get_depth(x_coord, y_coord)
-            print("Co-ordinates: ", x_coord, x_coord, depth)
+
+            if depth is None:
+                    print("Error: Depth is None, skipping this loop iteration.")
+                    continue
+
+            print("Co-ordinates: ", x_cen, y_cen, depth)
             # Get 3D co-ordinates in camera frame
-            X_3D, Y_3D, Z_3D = pixel_to_3d(x_cen, x_cen, depth)
-            print("3D Coordinates: X = ", X_3D, "Y = ", Y_3D, "Z = ", Z_3D)
+            X, Y, Z = pixel_to_3d(x_cen, y_cen, depth)
+            print("3D Coordinates: X = ", X, "Y = ", Y, "Z = ", Z)
+
+            if close_stop(Z, motion_proxy):
+                        # break
+                        continue
+            
+            robot_coords = transform_to_frame([X, Y, Z], motion_proxy)
+            print("Transformed Robot Coordinates:", robot_coords)
+
+            # move_towards_object(robot_coords, motion_proxy)
+            x = (depth / 100) - 0.2
+            y = x_cen / 100
+            z = math.atan2(y_cen, x_cen)
+            print("moving", x, y, z)
+            motion_proxy.moveTo(x, y, z)
+
+            track_object(x_cen, y_cen, motion_proxy)
 
     except Exception as e:
             print("Error receiving data: ", e)
@@ -158,3 +180,4 @@ while True:
         time.sleep(1)  
     except KeyboardInterrupt:
         cleanup(None, None)
+
