@@ -8,22 +8,28 @@ import sys
 import time
 sys.path.append(r"E:\pynaoqi-python2.7-2.5.5.5-win32-vs2013\pynaoqi-python2.7-2.5.5.5-win32-vs2013\lib")
 from naoqi import ALProxy, ALBroker  
-# from pepper_control import *
+from pepper_control import *
 
 # Pepper IP address and port
-ip = '192.168.244.116'
+ip = '192.168.244.198'
 port = 9559
 
 # Setup Pepper proxies
 broker = ALBroker("pythonBroker", "0.0.0.0", 0, ip, port)
 motion_proxy = ALProxy("ALMotion", ip, port)
 video_proxy = ALProxy("ALVideoDevice", ip, port)
+tracker_proxy = ALProxy("ALTracker", ip, port)
+awareness_proxy = ALProxy("ALBasicAwareness", ip, port)
+
+awareness_proxy.pauseAwareness()
 
 # Subscribe to Pepper cameras 
-depth_cam = video_proxy.subscribeCamera("pepper_depth_camera", 2, 1, 19, 20)
-image_cam = video_proxy.subscribeCamera("pepper_image_camera", 0, 1, 11, 30)
+depth_cam = video_proxy.subscribeCamera("pepper_depth_camera", 2, 10, 21, 15) # change res to 9?
+image_cam = video_proxy.subscribeCamera("pepper_image_camera", 0, 1, 11, 30) 
 
-if not depth_cam or not image_cam:
+
+# if not depth_cam or not image_cam:
+if not image_cam:
     print("Error: Failed to subscribe to Pepper's camera.")
 else:
     print("Camera subscription successful: pepper_depth_camera, pepper_image_camera")
@@ -41,8 +47,9 @@ location_sock.bind((server_ip, 9090))
 def cleanup(signal, frame):
     print("\nStopping video stream...")
     video_proxy.unsubscribe(image_cam)  
-    video_proxy.unsubscribe(depth_cam)  
+    video_proxy.unsubscribe(depth_cam) 
     print("\nUnsubscribing from camera and shutting down...")
+    # awareness_proxy.resumeAwareness()
     video_sock.close()
     location_sock.close() 
     motion_proxy.stopMove()
@@ -52,8 +59,6 @@ def cleanup(signal, frame):
 
 signal.signal(signal.SIGINT, cleanup)
 signal.signal(signal.SIGTERM, cleanup)
-
-
 
 # Fuction to get video feed from Pepper
 def get_feed():
@@ -85,24 +90,16 @@ def get_feed():
         print("Error:", e)
         cleanup(None, None)
 
+
 def get_depth(x, y):
-    video_proxy.setResolution(depth_cam, 1)
-    current_resolution = video_proxy.getResolution(depth_cam)
-    print("Current Resolution:", current_resolution)
     deth_frame = video_proxy.getImageRemote(depth_cam)
 
     if deth_frame is not None: 
         width = deth_frame[0]
         height = deth_frame[1]
-        print("Received depth image resolution: {}x{}".format(width, height))
         raw_depth_image = deth_frame[6] 
-
-        expected_size = width * height * 3 * 4  # 3 floats per voxel, 4 bytes per float
-        if len(raw_depth_image) != expected_size:
-            print("Error: Raw XYZ data size", len(raw_depth_image), "doesn't match expected size", expected_size)
-            return None
         
-        xyz_data = np.frombuffer(raw_depth_image, dtype=np.float32).reshape((height, width, 3))
+        depth_image = np.frombuffer(raw_depth_image, dtype=np.uint16).reshape((height, width))
 
         x_int = int(x)
         y_int = int(y)
@@ -111,10 +108,11 @@ def get_depth(x, y):
             print("Error: ({}, {}) is out of bounds. Image size: {}x{}".format(x_int, y_int, width, height))
             return None
 
-        depth = xyz_data[y_int, x_int, 2]  # z corresponds to the depth value
+        depth = depth_image[y_int, x_int]
+        video_proxy.setActiveCamera(0)  
         return depth
     else:
-        print("Error: Failed to get XYZ image.")
+        print("Error: Failed to get depth image.")
         return None
 
 # Move toward object
@@ -134,11 +132,16 @@ def move_towards():
             else:
                 print("No data received.")
 
+            x_coord, y_coord = map_top_to_depth_camera(x_cen, y_cen)
+            depth = get_depth(x_coord, y_coord)
+            print("Co-ordinates: ", x_coord, x_coord, depth)
+            # Get 3D co-ordinates in camera frame
+            X_3D, Y_3D, Z_3D = pixel_to_3d(x_cen, x_cen, depth)
+            print("3D Coordinates: X = ", X_3D, "Y = ", Y_3D, "Z = ", Z_3D)
+
     except Exception as e:
             print("Error receiving data: ", e)
             time.sleep(0.1)
-
-
 
 # Threads 
 video_thread = threading.Thread(target=get_feed)
