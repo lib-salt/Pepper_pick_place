@@ -225,8 +225,7 @@ class PepperCamera:
             valid_depths = depth_region[depth_region > 0]
             if len(valid_depths) == 0:
                 print("No valid depth data found")
-                # return None
-                pass
+                return None
                 
             depth = np.median(valid_depths) / 1000
 
