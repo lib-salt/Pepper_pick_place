@@ -6,8 +6,9 @@ import time
 from utils import logger
 
 class ObjectTracker:
-    def __init__(self, pepper_camera, pepper_motion):
+    def __init__(self, pepper_camera, pepper_motion, navigation_proxy=None):
         # Initialise object tracker
+        self.navigation_proxy = navigation_proxy
         self.camera = pepper_camera
         self.motion = pepper_motion
         self.location_sock = None
@@ -38,6 +39,7 @@ class ObjectTracker:
             logger.error("Error during tracker cleanup: {}".format(e))
 
     def track_and_move(self):
+        old_cat = None
         # Track objects and move towards them
         if not self.running or not self.location_sock:
             logger.error("Tracker not initialised")
@@ -64,31 +66,39 @@ class ObjectTracker:
 
                 logger.info("Detected {0} at coordinates ({1}, {2})".format(category, x_cen, y_cen))
 
-
                 # Get 3D position
-                position = self.camera.get_3d_position(x_cen, y_cen)
+                depth, position = self.camera.get_3d_position(x_cen, y_cen)
 
-                if position["x"] is None:
+                if position is None:
                     logger.warning("Could not get position data, skipping")
                     continue
 
                 logger.info("3D Coordinates: X={0}, Y={1}, Z={2}".format(position["x"], position["y"], position["z"]))
                 
                 # Announce detection
-                text = "I have found a {0}".format(category)
-                self.motion.say_object(text)
+                if old_cat != category:
+                    old_cat = category
+                    text = "I have found a {0}".format(category)
+                    self.motion.say_object(text)
                 
                 # Check if object is too close
-                if self.motion.stop_if_close((position["x"]/100)):
+                if self.motion.stop_if_close((position["x"])):
                     continue
 
                 # Move towards object
-                x = (position["x"] / 100) - 0.2  # Convert to meters and apply offset
+                x = depth - 0.4
+                # x = (position["x"] / 100) - 0.2  # Convert to meters and apply offset
                 y = position["y"] / 100  # Convert to meters
                 z = position["theta"]  # Angle to turn
                     
                 logger.info("Moving: x={0}, y={1}, z={2}".format(x, y, z))
-                self.motion.motion_proxy.moveTo(x, y, z)
+                move = self.motion.motion_proxy.moveTo(x, y, z)
+                # move = self.navigation_proxy.navigateTo(x, y)
+
+                if move:
+                    logger.info("Successfully reached object")
+                else:
+                    logger.error("Failed to reach object")
                     
                 # Tilt head down to keep object in view
                 self.motion.tilt_head(0.3, 0.2)

@@ -225,9 +225,13 @@ class PepperCamera:
             valid_depths = depth_region[depth_region > 0]
             if len(valid_depths) == 0:
                 print("No valid depth data found")
-                return None
+                # return None
+                pass
                 
-            depth = np.median(valid_depths)
+            depth = np.median(valid_depths) / 1000
+
+            if depth is not None:
+                logger.info("Object is {}m away".format(depth))
 
             return depth
         
@@ -263,27 +267,31 @@ class PepperCamera:
             depth_x, depth_y = self.map_pixel_to_depth(x_cen, y_cen)
             depth = self.get_depth_at_pixel(depth_x, depth_y)
 
-            # The math here: point = [depth * tan(angular_y), depth * tan(angular_x), depth]
-            camera_point = [
-                depth * np.tan(angular_position[1]),  # X in camera frame
-                depth * np.tan(angular_position[0]),  # Y in camera frame
-                depth                                  # Z in camera frame
-            ]
+            if depth is not None:
+                # The math here: point = [depth * tan(angular_y), depth * tan(angular_x), depth]
+                camera_point = [
+                    depth * np.tan(angular_position[1]),  # X in camera frame
+                    depth * np.tan(angular_position[0]),  # Y in camera frame
+                    depth                                  # Z in camera frame
+                ]
 
-            camera_transform = self.motion_proxy.getTransform("CameraTop", 2, 0)
-            robot_point = self.transform_point_with_homogeneous_matrix(camera_point, camera_transform)
+                camera_transform = self.motion_proxy.getTransform("CameraTop", 2, 0)
+                robot_point = self.transform_point_with_homogeneous_matrix(camera_point, camera_transform)
 
-            # Calculate robot frame coordinates
-            x_forward = robot_point[0]   # Forward distance
-            y_lateral = robot_point[1]   # Lateral distance 
-            theta = np.arctan2(y_lateral, x_forward)  # Angle
+                # Calculate robot frame coordinates
+                x_forward = robot_point[0]   # Forward distance
+                y_lateral = robot_point[1]   # Lateral distance 
+                theta = np.arctan2(y_lateral, x_forward)  # Angle
+                
+                return depth, {
+                    "x": x_forward,
+                    "y": y_lateral,
+                    "z": robot_point[2],     # Height
+                    "theta": theta           # Angle
+                }
             
-            return {
-                "x": x_forward,
-                "y": y_lateral,
-                "z": robot_point[2],     # Height
-                "theta": theta           # Angle
-            }
+            else:
+                return None
     
         except Exception as e:
             logger.error("Error calculating 3D position: {}".format(e))
