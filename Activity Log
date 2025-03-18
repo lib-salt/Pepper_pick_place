@@ -64,4 +64,8 @@ Week 7:
   - Pepper will say the object it has detected
 
 Week 8:
+  Mon 17th March:
+    - Wrote modular code for better format and additional implemtation
   Tue 18th March:
+    - Tested new code
+    - Will move when object is detected, need to check how it gets co-ordinates as values seem unreasonable
