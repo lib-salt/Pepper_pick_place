@@ -86,17 +86,26 @@ class ObjectTracker:
                     continue
 
                 # Move towards object
-                x = depth - 0.4
-                # x = (position["x"] / 100) - 0.2  # Convert to meters and apply offset
+                # x = depth - 0.4
+                x = (position["x"] / 100) - 0.2  # Convert to meters and apply offset
                 y = position["y"] / 100  # Convert to meters
-                z = position["theta"]  # Angle to turn
+                theta = position["theta"]  # Angle to turn
+
+                # Safe movement limits
+                MIN_X, MAX_X = -1.0, 4.0
+                MIN_Y, MAX_Y = -1.0, 1.0
+                MIN_THETA, MAX_THETA = -math.pi, math.pi
+                if not (MIN_X <= x <= MAX_X) or not (MIN_Y <= y <= MAX_Y) or not (MIN_THETA <= theta <= MAX_THETA):
+                    logger.warning("Movement out of range")
+                    continue
                     
-                logger.info("Moving: x={0}, y={1}, z={2}".format(x, y, z))
-                move = self.motion.motion_proxy.moveTo(x, y, z)
+                logger.info("Moving: x={0}, y={1}, theta={2}".format(x, y, theta))
+                move = self.motion.motion_proxy.moveTo(x, y, theta)
                 # move = self.navigation_proxy.navigateTo(x, y)
 
                 if move:
                     logger.info("Successfully reached object")
+                    self.camera.arm_above(x, y, depth)
                 else:
                     logger.error("Failed to reach object")
                     
