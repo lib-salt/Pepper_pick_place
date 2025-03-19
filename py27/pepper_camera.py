@@ -3,17 +3,17 @@ import cv2
 import struct
 import logging
 import socket
+import time
 import threading
 from config import *
 from utils import logger
 
 class PepperCamera:
-    def __init__(self, video_proxy, motion_proxy): # Memory proxy?
+    def __init__(self, video_proxy, motion_proxy): 
 
         # Initialise Proxies
         self.video_proxy = video_proxy
         self.motion_proxy = motion_proxy
-        # self.memory_proxy = memory_proxy
 
         # Initialise cameras for Pepper
         self.depth_cam = None
@@ -259,8 +259,12 @@ class PepperCamera:
         try:
             logger.debug("Received pixel coordinates: x_cen={}, y_cen={}".format(x_cen, y_cen))
 
+            # Normalise co-ordinates between 0.0 and 1.0
+            norm_x = x_cen / self.image_width
+            norm_y = y_cen / self.image_height
+
             # Convert 2D ray into 3D
-            angular_position = self.video_proxy.getAngularPositionFromImagePosition(TOP_CAM_ID, [x_cen, y_cen])
+            angular_position = self.video_proxy.getAngularPositionFromImagePosition(TOP_CAM_ID, [norm_x, norm_y])
 
             # Transform top cam coords to depth cam coords
             depth_x, depth_y = self.map_pixel_to_depth(x_cen, y_cen)
@@ -295,3 +299,84 @@ class PepperCamera:
         except Exception as e:
             logger.error("Error calculating 3D position: {}".format(e))
         return None
+    
+    def arm_above(self, x, y, depth):
+        try:
+            # Move arm above object
+            norm_x = x / 320.0
+            norm_y = y / 240.0
+
+            # Get angular position
+            angular_position = self.video_proxy.getAngularPositionFromImagePosition(0, [norm_x, norm_y])
+
+            camera_point = [
+                depth * np.tan(angular_position[1]),
+                depth * np.tan(angular_position[0]),
+                depth
+            ]
+
+            # Get camera transform
+            camera_transform = self.motion_proxy.getTransform("CameraTop", 2, 0)
+
+            # Transform point to robot frame
+            robot_point = self.transform_point_with_homogeneous_matrix(camera_point, camera_transform)
+
+            target_position = [
+                robot_point[0], 
+                robot_point[1],
+                robot_point[2] + 0.1 # Add 10cm offset
+            ]
+
+            # Get arm limits 
+            limits = self.motion_proxy.getLimits("RArm")
+            min_x, max_x = limits[0][0], limits[0][1]
+            min_y, max_y = limits[1][0], limits[1][1]
+            min_z, max_z = limits[2][0], limits[2][1]
+            logger.info("Arm position: ({}, {}, {})".format(robot_point[0], robot_point[1],robot_point[2]))
+
+            # Skips arm movement if exceeds limits
+            if not (min_x <= target_position[0] <= max_x and
+                    min_y <= target_position[1] <= max_y and
+                    min_z <= target_position[2] <= max_z):
+                logger.warning("Target position is out of range!")
+                return
+
+            self.motion_proxy.setPositions(
+                "RArm",
+                2,
+                target_position,
+                0.5,
+                7
+            )
+        except Exception as e:
+            logger.error("Failed to move arm {}".format(e))
+
+    def search(self, search_angles=None, pause_duration=1.0):
+        # Move Pepper's head to scan the environment
+        if search_angles is None:
+            search_angles = [
+                (-0.8, 0.1),  # Far left, slightly down
+                (-0.4, 0.1),  # Left, slightly down
+                (0.0, 0.1),   # Center, slightly down
+                (0.4, 0.1),   # Right, slightly down
+                (0.8, 0.1),   # Far right, slightly down
+                (0.6, 0.3),   # Right, more down
+                (0.0, 0.3),   # Center, more down
+                (-0.6, 0.3),  # Left, more down
+            ]
+
+        for yaw, pitch in search_angles:
+            try:
+                # Set head angles
+                self.motion_proxy.setAngles(["HeadYaw", "HeadPitch"], [yaw, pitch], 0.2)
+                logger.info(f"Searching - Head at yaw={yaw}, pitch={pitch}")
+                time.sleep(pause_duration)
+                
+                # Get camera frame to check for objects
+                frame = self.camera.get_video_frame()
+                if frame is not None:
+                    # You could send this frame to your object detector here
+                    pass
+                    
+            except Exception as e:
+                logger.error("Error during search motion: {}".format(e))
