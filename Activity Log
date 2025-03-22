@@ -69,3 +69,9 @@ Week 8:
   Tue 18th March:
     - Tested new code
     - Will move when object is detected, need to check how it gets co-ordinates as values seem unreasonable
+  Wed 19th March:
+    - Depth Smoothing explored different methods to filter/remove noise to be more accurate
+    - Implemented in code
+  Thurs 20th March:
+    - Vids of Pepper moving to object
+    - Pepper will raise arm when reached object
