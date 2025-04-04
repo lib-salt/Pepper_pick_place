@@ -30,9 +30,19 @@ def process_frame(frame):
             print("Error: Received empty frame.")
             return None
         
+        # Border to show depth image size
+        x1 = (320 - 320) // 2
+        y1 = (240 - 180) // 2
+        x2 = x1 + 320
+        y2 = y1 + 180
+
+        # Draw the border of depth image
+        frame = cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)  
+
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
         result = detector.detect(mp_image)
 
+        obj = None
         object_center = None
 
         for detection in result.detections:
@@ -49,8 +59,14 @@ def process_frame(frame):
                 x_cen = x + w // 2
                 y_cen = y + h // 2
                 object_center = (x_cen, y_cen)
+                obj = category
 
         cv2.imshow('Pepper Camera Feed', frame)
         cv2.waitKey(1) 
 
-        return object_center
+        return object_center, obj
+
+    except Exception as e:
+        print(f"Error processing frame: {e}")
+
+

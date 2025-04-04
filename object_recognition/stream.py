@@ -5,7 +5,8 @@ import threading
 import struct
 import time
 import signal
-from view_object_rec import process_frame
+# from mediapipe_recognition import process_frame
+from yolo_recognition import process_frame
 
 stop_event = threading.Event()
 
@@ -47,15 +48,15 @@ def process_frames():
             if latest_frame is not None:
                 frame = latest_frame.copy()
             else:
-                print("No frame available for processing.")
+                # print("No frame available for processing.")
                 time.sleep(0.1)
                 continue  
-
-        object_center = process_frame(frame) 
+        # Get the object category and center co-ordinate
+        object_center, category = process_frame(frame) 
 
         if object_center:
             x_cen, y_cen = object_center
-            send_object_location(x_cen, y_cen)
+            send_object_location(x_cen, y_cen, category)
 
         if frame is not None:
             try:
@@ -64,9 +65,11 @@ def process_frames():
                 print(f"Error in process_frame: {e}") 
 
 
-def send_object_location(x_cen, y_cen):
+def send_object_location(x_cen, y_cen, category):
     try:
-        data =  f"{x_cen},{y_cen}".encode() 
+        # Get current time stamp
+        timestamp = time.time()
+        data =  f"{x_cen},{y_cen},{category},{timestamp}".encode() 
         location_sock.sendto(data, ("127.0.0.1", 9090))
     except Exception as e:
         print(f"Error sending object location: {e}")
