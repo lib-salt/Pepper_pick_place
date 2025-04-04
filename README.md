@@ -28,3 +28,20 @@ For the NAOqi libraries to work, it is necessary to have a 2.7 Python enviroment
         ```
         pip install matplotlib && numpy && opencv-python && mediapipe && pillow && torch && ultralytics
         ```
+
+### NAOqi SDK
+The NAOqi python SDK is available from:  
+https://aldebaran.com/en/support/kb/nao6/downloads/nao6-software-downloads/  
+- Once downloaded unzip the file in the desired location.
+- Copy the path to the lib folder within this directory
+- Locate the config.py in pepper_pipeline folder
+- Replace the NAOQI_PATH with your path
+
+Further documentation and guidance:  
+http://doc.aldebaran.com/2-8/dev/python/install_guide.html  
+
+---
+## Running from terminal
+
+---
+## Running from .bat file
