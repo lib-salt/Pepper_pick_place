@@ -4,163 +4,98 @@ import signal
 import threading
 from config import *
 from utils import logger
-import utils
 
 from naoqi import ALBroker, ALProxy
-from pepper_camera import PepperCamera
-from motion import PepperMotion
-from vision import ObjectTracker
+from camera_manager import CameraManager
+from spatial_mapper import SpatialMapper
+from speech_manager import SpeechManager
+from motion_controller import MotionController
+from network_listener import NetworkListener
+from behaviour_controller import BehaviourController
 
-def setup_signal_handlers(robot_app):
-    # Setup signal handlers for cleanup
-    def cleanup_handler(sig, frame):
-        logger.info("Shutdown signal received, cleaning up ...")
-        robot_app.cleanup()
-        sys.exit(0)
+controller = None
 
-    signal.signal(signal.SIGINT, cleanup_handler)
-    signal.signal(signal.SIGTERM, cleanup_handler)
-
-class PepperRobot:
-    # Main class for Pepper robot application
-    def __init__(self):
-        # Initialises Pepper robot application
-        self.broker = None
-        self.motion_proxy = None
-        self.video_proxy = None
-        self.tracker_proxy = None
-        self.awareness_proxy = None
-        self.speech_proxy = None
-        
-        self.camera = None
-        self.motion = None
-        self.tracker = None
-        
-        self.threads = []
-
-    def initialise(self):
-        # initialises all components
-        try: 
-             # Set up broker and proxies
-            self.broker = ALBroker("pythonBroker", "0.0.0.0", 0, ROBOT_IP, ROBOT_PORT)
-            self.motion_proxy = ALProxy("ALMotion", ROBOT_IP, ROBOT_PORT)
-            self.video_proxy = ALProxy("ALVideoDevice", ROBOT_IP, ROBOT_PORT)
-            self.tracker_proxy = ALProxy("ALTracker", ROBOT_IP, ROBOT_PORT)
-            self.awareness_proxy = ALProxy("ALBasicAwareness", ROBOT_IP, ROBOT_PORT)
-            self.speech_proxy = ALProxy("ALTextToSpeech", ROBOT_IP, ROBOT_PORT)
-            self.autonomousLife_proxy = ALProxy("ALAutonomousLife", ROBOT_IP, ROBOT_PORT)
-            self.navigation_proxy = ALProxy("ALNavigation", ROBOT_IP, ROBOT_PORT)
-            
-            logger.info("NAOqi proxies initialised successfully")
-            
-            # Initialise camera module
-            self.camera = PepperCamera(self.video_proxy, self.motion_proxy)
-            if not self.camera.initialise():
-                logger.error("Failed to initialise camera module")
-                return False
-            
-            # Initialise motion module
-            self.motion = PepperMotion(
-                self.motion_proxy,
-                self.speech_proxy,
-                self.tracker_proxy,
-                self.autonomousLife_proxy
-                # self.awareness_proxy
-            )
-            
-            # Initialise object tracker
-            self.tracker = ObjectTracker(self.camera, self.motion, self.navigation_proxy)
-            if not self.tracker.initialise(SERVER_IP, LOCATION_PORT):
-                logger.error("Failed to initialise object tracker")
-                return False
-            
-            logger.info("All modules initialised successfully")
-            return True
-            
-        except Exception as e:
-            logger.error("Initialisation error: {}".format(e))
-            return False
-        
-    def start(self):
-        # Start all threads and main operation
-        if not hasattr(self, 'camera') or not hasattr(self, 'tracker'):
-            logger.error("Modules not initialised")
-            return False
-        
-        try:
-            # Create threads
-            video_thread = threading.Thread(
-                target=self.camera.stream_video,
-                args=(SERVER_IP, VIDEO_PORT)
-            )
-            video_thread.setDaemon(True)
-            
-            tracker_thread = threading.Thread(
-                target=self.tracker.track_and_move
-            )
-            tracker_thread.setDaemon(True)
-            
-            # Start threads
-            video_thread.start()
-            tracker_thread.start()
-            
-            # Store threads for cleanup
-            self.threads = [video_thread, tracker_thread]
-            
-            logger.info("All threads started successfully")
-            return True
-            
-        except Exception as e:
-            logger.error("Error starting threads: {}".format(e))
-            return False
-        
-    def cleanup(self):
-        # Clean up all resources
-        try:
-            if hasattr(self, 'tracker') and self.tracker:
-                self.tracker.cleanup()
-                
-            if hasattr(self, 'camera') and self.camera:
-                self.camera.cleanup()
-                
-            if hasattr(self, 'motion') and self.motion:
-                self.motion.cleanup()
-            
-            if hasattr(self, 'broker') and self.broker:
-                time.sleep(0.5)  # Allow time for other operations to complete
-                self.broker.shutdown()
-                
-            logger.info("All resources cleaned up successfully")
-            
-        except Exception as e:
-            logger.error("Error during cleanup: {}".format(e))
+def signal_handler(dig, frame):
+    # Handle termination signal gracefully
+    logger.info("Shutdown signal rexeived, cleanig up ...")
+    if controller:
+        controller.cleanup()
+    sys.exit(0)
 
 def main():
-    # Main function to run application
-    logger.info("Starting Pepper robot application")
+    global controller
 
-    # Initialise robot
-    robot = PepperRobot()
-    setup_signal_handlers(robot)
+    # Register signal handler
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
 
-    if not robot.initialise():
-        logger.error("Failed to initialise Pepper robot")
-        return
-    
-    if not robot.start():
-        logger.error("Failed to initialise Pepper robot application")
-        robot.cleanup()
-        return
-    
-    # Keep main thread alive
-    logger.info("Pepper robot application running")
     try:
+        # Connect to robot
+        logger.info("Connecting to Pepper at {}.{}".format(ROBOT_IP, ROBOT_PORT))
+
+        # Initialise proxies
+        video_proxy = ALProxy("ALVideoDevice", ROBOT_IP, ROBOT_PORT)
+        motion_proxy = ALProxy("ALMotion", ROBOT_IP, ROBOT_PORT)
+        speech_proxy = ALProxy("ALTextToSpeech", ROBOT_IP, ROBOT_PORT)
+        awareness_proxy = ALProxy("ALBasicAwareness", ROBOT_IP, ROBOT_PORT)
+        face_proxy = ALProxy("ALFaceDetection", ROBOT_IP, ROBOT_PORT)
+        autoLife_proxy = ALProxy("ALAutonomousLife", ROBOT_IP, ROBOT_PORT)
+        navigation_proxy = ALProxy("ALNavigation", ROBOT_IP, ROBOT_PORT)
+        
+        # Initialise components
+        camera_manager = CameraManager(video_proxy)
+        spatial_mapper = SpatialMapper(video_proxy, motion_proxy)
+        speech_manager = SpeechManager(speech_proxy)
+        motion_controller = MotionController(motion_proxy, awareness_proxy,
+                                             face_proxy, autoLife_proxy, navigation_proxy)
+        network_listener = NetworkListener()
+
+        # Initialise behaviour controller
+        controller = BehaviourController(
+            camera_manager,
+            spatial_mapper,
+            motion_controller,
+            speech_manager,
+            network_listener
+        )
+
+        # Check initialisation
+        logger.info("Initialising camera ...")
+        if not camera_manager.initialise():
+            logger.error("Failed to initialise camera, exiting")
+            return
+        
+        logger.info("Initialising network listener ...")
+        if not network_listener.initialise(SERVER_IP, LOCATION_PORT):
+            logger.error("Failed to initialise network listener, exiting")
+            return
+        
+        # Start video streaming
+        logger.info("Starting video stream ...")
+        video_thread = camera_manager.start_video_stream(SERVER_IP, VIDEO_PORT)
+
+        # Start behaviour controller
+        logger.info("Starting object tracking ...")
+        controller.start()
+
+        # Run tracking loop
+        tracking_thread = threading.Thread(
+            target=controller.run_object_tracking,
+        )
+        tracking_thread.setDaemon(True)
+        tracking_thread.start()
+
+        # Keep main thread alive
+        logger.info("System running. Press Ctrl+C to exit.")
         while True:
             time.sleep(1)
-    
-    except KeyboardInterrupt:
-        logger.info("Keyboard interrupt received")
-        robot.cleanup()
+
+    except Exception as e:
+        logger.error("Error in main: {}".format(e))
+    finally:
+        # Cleanup
+        if controller:
+            controller.cleanup()
 
 if __name__ == "__main__":
     main()
