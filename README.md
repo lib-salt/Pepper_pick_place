@@ -26,7 +26,7 @@ For the NAOqi libraries to work, it is necessary to have a 2.7 Python enviroment
         ```
     * Pip installations
         ```
-        pip install matplotlib && numpy && opencv-python && mediapipe && pillow && torch && ultralytics
+        pip install matplotlib numpy opencv-python mediapipe pillow torch ultralytics
         ```
 
 ### NAOqi SDK
