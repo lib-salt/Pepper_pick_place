@@ -16,7 +16,7 @@ For the NAOqi libraries to work, it is necessary to have a 2.7 Python enviroment
         ```
     * Pip installations
         ```
-        pip install matplotlib && numpy==1.16.6 && opencv-python==4.2.0.32
+        pip install matplotlib numpy==1.16.6 opencv-python==4.2.0.32
         ```
 - Setup python 3.12 environment:
     * Create and activate conda environment
