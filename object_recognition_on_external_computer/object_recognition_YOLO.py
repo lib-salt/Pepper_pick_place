@@ -28,13 +28,15 @@ while cap.isOpened():
         for box in result.boxes:
             x1, y1, x2, y2 = map(int, box.xyxy[0])  # Get bounding box coordinates
             confidence = float(box.conf[0])  # Get confidence score
-            label = result.names[int(box.cls[0])]  # Get label
+            object_cat = result.names[int(box.cls[0])]  # Get object category
 
             # Only show allowed objects
-            if label in {'bottle', 'cup', 'remote'}:
+            if object_cat in {'bottle', 'cup', 'remote'}:
+                score_percent = int(confidence * 100)
+                label = f"{object_cat} {score_percent}%"
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.putText(frame, f"{label} {confidence:.2f}", (x1, y1 - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                cv2.putText(frame, label, (x1, y1 - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
     # Display frame
     cv2.imshow('YOLOv8 Object Detection', frame)
