@@ -1,9 +1,15 @@
+import os
 import cv2
-import torch
+import logging
 from ultralytics import YOLO
 
+# Disable YOLOv8 logging
+logging.getLogger("ultralytics").setLevel(logging.ERROR)
+
 # Load YOLOv8 model
-model = YOLO(r'c:\Users\Libby\OneDrive - Edge Hill University\Year 3\Final Project\code\yolov8n.pt')
+script_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(script_dir, "yolov8n.pt")
+model = YOLO(model_path)
 
 # Open webcam
 cap = cv2.VideoCapture(0)
