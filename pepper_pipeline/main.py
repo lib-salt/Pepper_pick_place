@@ -5,7 +5,7 @@ import threading
 from config import *
 from utils import logger
 
-from naoqi import ALBroker, ALProxy
+from naoqi import ALProxy
 from camera_manager import CameraManager
 from spatial_mapper import SpatialMapper
 from speech_manager import SpeechManager
