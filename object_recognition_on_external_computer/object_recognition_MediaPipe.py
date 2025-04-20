@@ -1,9 +1,11 @@
+import os
 import cv2
 import numpy as np
 import mediapipe as mp
 
 # Load the model
-model_path = r'c:\Users\Libby\OneDrive - Edge Hill University\Year 3\Final Project\code\efficientdet_lite0.tflite'  
+script_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(script_dir, "efficientdet_lite0.tflite")
 
 BaseOptions = mp.tasks.BaseOptions
 ObjectDetector = mp.tasks.vision.ObjectDetector
@@ -45,18 +47,12 @@ with ObjectDetector.create_from_options(options) as detector:
                 bbox = detection.bounding_box
                 x, y, w, h = int(bbox.origin_x), int(bbox.origin_y), int(bbox.width), int(bbox.height)
 
-                center = (x + w // 2, y + h // 2)
-                size = (w, h)
-                angle = 0  
-                
-                rotated_rect = ((center[0], center[1]), (size[0], size[1]), angle)
-                box = cv2.boxPoints(rotated_rect)  
-                box = np.intp(box)  
-
-                cv2.polylines(frame, [box], isClosed=True, color=(0, 255, 0), thickness=2)
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
                 # Draw label text
-                label = detection.categories[0].category_name
+                category_info = detection.categories[0]
+                score_percent = int(category_info.score * 100)
+                label = f"{category_info.category_name} {score_percent}%"
                 cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
         # Display the frame
