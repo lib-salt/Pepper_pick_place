@@ -3,9 +3,11 @@ import cv2
 import signal
 import sys
 import time
+# Path to NAOqi SDK library
 sys.path.append(r"E:\pynaoqi-python2.7-2.5.5.5-win32-vs2013\pynaoqi-python2.7-2.5.5.5-win32-vs2013\lib")
 from naoqi import ALProxy, ALBroker
 
+# Robot IP
 ip = '192.168.244.198'
 port = 9559
 broker = ALBroker("pythonBroker", "0.0.0.0", 0, ip, port)
@@ -60,7 +62,7 @@ def capture_frame(video_proxy, camera_id, resolution, fps):
 # Prepare to collect calibration images
 pattern_size = (6, 7)  # Adjust based on your checkerboard
 image_count = 0
-required_images = 10  # Number of images you want for calibration
+required_images = 50  # Number of images you want for calibration
 
 # Capture images from both cameras
 while image_count < required_images:
@@ -68,6 +70,7 @@ while image_count < required_images:
         frame_top = capture_frame(video_proxy, TOP_CAMERA, RESOLUTION_TOP, FPS_TOP)
         frame_stereo = capture_frame(video_proxy, LEFT_EYE_CAMERA, RESOLUTION_LEFT, FPS_LEFT)
 
+        # Isolate left eye camera as frame shows both eye cameras
         frame_left = frame_stereo[:, :frame_stereo.shape[1] // 2]
 
         # Convert to grayscale for corner detection
