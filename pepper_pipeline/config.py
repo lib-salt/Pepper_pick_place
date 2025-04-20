@@ -1,5 +1,3 @@
-import os 
-
 ROBOT_IP = '192.168.244.207'
 ROBOT_PORT = 9559
 
