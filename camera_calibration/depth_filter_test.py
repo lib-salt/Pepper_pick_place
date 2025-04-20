@@ -7,6 +7,7 @@ import threading
 import sys
 import time
 import math
+# Path to NAOqi SDK library
 sys.path.append(r"E:\pynaoqi-python2.7-2.5.5.5-win32-vs2013\pynaoqi-python2.7-2.5.5.5-win32-vs2013\lib")
 from naoqi import ALProxy, ALBroker  
 
