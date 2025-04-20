@@ -4,7 +4,6 @@ import socket
 import threading
 import struct
 import time
-import signal
 # from mediapipe_recognition import process_frame
 from yolo_recognition import process_frame
 
