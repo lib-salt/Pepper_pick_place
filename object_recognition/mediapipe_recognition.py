@@ -1,10 +1,12 @@
+import os
 import cv2
 import numpy as np
 import mediapipe as mp
 import matplotlib as plt
 
 # Path to mediapipe model
-model_path = r"C:\Users\25276034.EDGEHILL\OneDrive - Edge Hill University\Year 3\Final Project\code\py3\efficientdet_lite0.tflite"
+script_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(script_dir, "efficientdet_lite0.tflite")
 
 # Set up mediapipe model
 BaseOptions = mp.tasks.BaseOptions
