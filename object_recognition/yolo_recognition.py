@@ -1,19 +1,14 @@
 import cv2
-import torch
 from ultralytics import YOLO
-import sys
 import os
 import logging
-
-os.environ['YOLO_VERBOSE'] = 'False'
 
 logging.getLogger("ultralytics").setLevel(logging.ERROR)
 
 # Load the YOLOv8 model
-model_path = r"C:\Users\25276034.EDGEHILL\OneDrive - Edge Hill University\Year 3\Final Project\code\yolov8n.pt"
-model = YOLO(model_path, verbose=False)  # Load YOLOv8 model
-
-model.verbose = False
+script_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(script_dir, "yolov8n.pt")
+model = YOLO(model_path)
 
 # Objects to detect
 ALLOWED_OBJECTS = {'bottle', 'cup', 'remote'}
@@ -34,15 +29,17 @@ def process_frame(frame):
             for box in result.boxes:
                 x1, y1, x2, y2 = map(int, box.xyxy[0])  # Get bounding box coordinates
                 confidence = float(box.conf[0])  # Get confidence score
-                label = result.names[int(box.cls[0])]  # Get label
+                object_cat = result.names[int(box.cls[0])]  # Get label
 
                 # Only process allowed objects
-                if label in ALLOWED_OBJECTS and confidence > 0.5:
+                if object_cat in ALLOWED_OBJECTS and confidence > 0.5:
                     # Draw bounding box
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
                     # Draw confidence label
-                    cv2.putText(frame, f"{label} {confidence:.2f}", (x1, y1 - 10),
+                    score_percent = int(confidence * 100)
+                    label = f"{object_cat} {score_percent}%"
+                    cv2.putText(frame, label, (x1, y1 - 10),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
                     # Calculate object center
@@ -53,7 +50,7 @@ def process_frame(frame):
 
         # Display the frame with bounding boxes
         cv2.imshow('YOLOv8 Object Detection', frame)
-        cv2.waitKey(1)  # Needed for imshow to work
+        cv2.waitKey(1) 
 
         return object_center, obj
 
