@@ -1,5 +1,4 @@
 import socket
-import logging
 import time
 from utils import logger
 
