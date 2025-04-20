@@ -24,8 +24,6 @@ class MotionController:
             logger.info("People tracking off")
         
         if self.awareness_proxy:
-            # self.autoLife_proxy.setState("disabled")
-            # self.motion_proxy.wakeUp()
             self.awareness_proxy.pauseAwareness()
             self.awareness_proxy.setEnabled(False)
             self.awareness_proxy.setStimulusDetectionEnabled("People", False)
@@ -33,6 +31,7 @@ class MotionController:
             logger.info("Awareness off")
             self.tilt_head()
 
+        # Disable arm collision protection
         if self.motion_proxy:
             self.motion_proxy.setExternalCollisionProtectionEnabled("Arms", False)
             
@@ -68,57 +67,77 @@ class MotionController:
         # Enable stiffness for the right arm and hip
         self.motion_proxy.setStiffnesses("RArm", 1.0)
         self.motion_proxy.setStiffnesses("Hip", 1.0)
+        self.motion_proxy.setStiffnesses("Head", 0.8)  
         
-        # Joint names we care about (right arm and hip)
-        names = ['RShoulderPitch', 'RShoulderRoll', 'RElbowYaw', 'RElbowRoll', 
-                'RWristYaw', 'RHand', 'HipPitch', 'HipRoll']
-        
-        # Times for each keyframe (adjust as needed for speed)
-        times = [
-            [1.0, 2.0, 3.0, 4.0, 5.0],  # RShoulderPitch
-            [1.0, 2.0, 3.0, 4.0, 5.0],  # RShoulderRoll
-            [1.0, 2.0, 3.0, 4.0, 5.0],  # RElbowYaw
-            [1.0, 2.0, 3.0, 4.0, 5.0],  # RElbowRoll
-            [1.0, 2.0, 3.0, 4.0, 5.0],  # RWristYaw
-            [1.0, 2.0, 3.0, 4.0, 5.0],  # RHand
-            [1.0, 2.0, 3.0, 4.0, 5.0],  # HipPitch
-            [1.0, 2.0, 3.0, 4.0, 5.0]   # HipRoll
+        # Joint names 
+        names = [
+            'RShoulderPitch', 'RShoulderRoll', 'RElbowYaw', 'RElbowRoll', 
+            'RWristYaw', 'RHand', 'HipPitch', 'HipRoll', 'HeadPitch', 'HeadYaw'
         ]
         
-        # Key positions from your frames (already in radians)
+        # Times for each keyframe 
+        times = [
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # RShoulderPitch
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # RShoulderRoll
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # RElbowYaw
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # RElbowRoll
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # RWristYaw
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # RHand
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # HipPitch
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # HipRoll
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # HeadPitch
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]   # HeadYaw
+        ]
+        
         keys = [
-            # RShoulderPitch
-            [1.747, -0.0400, -0.0430, -0.0430, -0.0430],
+            # RShoulderPitch 
+            [1.4, 0.5, 0.2, -0.12, -0.2, -0.12, 0.1, 0.4],
             
-            # RShoulderRoll
-            [-0.158, -0.0905, -0.0087, -0.0905, -0.0798],
+            # RShoulderRoll 
+            [-0.15, -0.2, -0.15, -0.1, -0.08, -0.08, -0.1, -0.15],
             
-            # RElbowYaw
-            [1.667, 1.684, 1.101, 0.227, 0.227],
+            # RElbowYaw 
+            [1.5, 1.5, 1.3, 1.1, 1.0, 1.0, 1.2, 1.5],
             
-            # RElbowRoll
-            [0.2439, 0.1963, 0.3958, 0.6737, 0.6845],
+            # RElbowRoll 
+            [0.3, 0.5, 0.6, 0.5, 0.4, 0.45, 0.6, 0.5],
             
-            # RWristYaw
-            [0.0352, -0.0583, 0.1902, 0.7335, 0.7335],
+            # RWristYaw 
+            [0.0, 0.2, 0.3, 0.4, 0.6, 0.6, 0.4, 0.2],
             
-            # RHand (already in correct format - 0 to 1 range)
-            [0.584359, 0.912127, 0.878735, 0.43, 0.43761],
+            # RHand 
+            [0.6, 0.8, 0.9, 0.8, 0.0, 0.0, 0.0, 0.0],
             
-            # HipPitch
-            [-0.0506, -0.0406, -0.3250, -0.3000, -0.3176],
+            # HipPitch 
+            [-0.05, -0.1, -0.25, -0.5, -0.65, -0.62, -0.3, -0.1],
             
-            # HipRoll
-            [-0.0107, -0.0107, -0.0107, -0.0107, -0.0107]
+            # HipRoll 
+            [0.0, -0.02, -0.03, -0.04, -0.04, -0.03, -0.02, 0.0],
+            
+            # HeadPitch 
+            [0.0, -0.1, -0.2, -0.3, -0.35, -0.35, -0.2, 0.0],
+            
+            # HeadYaw 
+            [0.0, 0.1, 0.15, 0.2, 0.2, 0.2, 0.1, 0.0]
         ]
         
         try:
-            # Execute the movement
+            # Add a slight weight shift before movement starts
+            self.motion_proxy.setAngles("HipRoll", 0.02, 0.1)
+            time.sleep(0.5)
+            
+            # Execute the main movement sequence
             logger.info("Starting arm grab sequence")
             self.motion_proxy.angleInterpolation(names, keys, times, True)
+            
+            # Subtle "success" movement 
+            self.motion_proxy.setAngles("RShoulderPitch", 0.3, 0.2)
+            time.sleep(0.5)
+            
             logger.info("Completed arm grab sequence")
-            time.sleep(5)
+              
             return True
+            
         except Exception as e:
             logger.error("Error executing arm movement: {}".format(e))
             return False
@@ -149,16 +168,15 @@ class MotionController:
             # Get ready to move
             self.motion_proxy.moveInit()            
             logger.info("Moving to: x={}, y={}, theta={}".format(x, y, theta))
-            # self.motion_proxy.moveTo(x, y, theta, _async=True)
-            # self.motion_proxy.waitUntilMoveIsFinished()
             movement = self.navigation_proxy.navigateTo(x, y)
+
             if movement:
                 logger.info("Navigation Successful!")
                 time.sleep(1) # Make sure movement is complete
 
                 # Get current robot positition 
-                current_position = self.motion_proxy.getRobotPosition(True)
-                current_theta = current_position[2]
+                final_position = self.motion_proxy.getRobotPosition(True)
+                current_theta = final_position[2]
 
                 # Calculate rotation to face the object
                 new_theta = theta - current_theta
@@ -174,7 +192,6 @@ class MotionController:
             else:
                 logger.info("Navigation failed")
             return movement
-            # return True
         
         except Exception as e:
             logger.error("Error moving to position: {}".format(e))
@@ -192,7 +209,11 @@ class MotionController:
         except Exception as e:
             logger.error("Error checking distance: {}".format(e))
             return False
-        
+
+    def get_robot_position(self):
+        return self.motion_proxy.getRobotPosition(True)
+
+    # Non-implemented methods but potential to add further improvements
     def move_increment(self):
         # Move forward by 10cm
         self.motion_proxy.moveTo(0.1, 0, 0, _async=True)
