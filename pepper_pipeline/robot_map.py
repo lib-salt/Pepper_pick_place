@@ -1,3 +1,4 @@
+import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -36,8 +37,12 @@ class PepperRobotMap(object):
             'default': 'blue'
         }
         
-        # Robot is initially drawn at the center (in update_map)
+        # Robot starts at centre of map
         self.current_robot_pos = {'x': 0, 'y': 0, 'theta': 0}
+        
+        # Force matplotlib to use ASCII
+        matplotlib.rcParams['font.family'] = 'sans-serif'
+        matplotlib.rcParams['font.sans-serif'] = ['Arial']
         
         # Add a legend to the map
         self._create_legend()
@@ -119,7 +124,8 @@ class PepperRobotMap(object):
         self.ax.scatter(y_lateral, x_forward, color=colour, s=100, alpha=0.7, edgecolor='black')
         
         # Add category label
-        label_text = category + ' (X: {:.2f}, Y: {:.2f})'.format(x_forward, y_lateral)
+        label_text = "{} (X: {:.2f}, Y: {:.2f})".format(str(category), x_forward, y_lateral)
+        
         if depth is not None:
             label_text += '\n{:.2f}m'.format(depth)
         
@@ -235,7 +241,7 @@ class PepperRobotMap(object):
             self.add_object(x_forward, y_lateral, category, depth)
 
     def save(self, filename=None):
-        """Save the map to a file"""
+        # Save the map to a file
         try:
             # Generate filename if not provided
             if not filename:
@@ -255,39 +261,3 @@ class PepperRobotMap(object):
         except Exception as e:
             print("Error saving map: {}".format(str(e)))
             return None
-
-
-if __name__ == '__main__':
-    # Sample data for testing
-    sample_objects = [
-        {
-            'x_forward': 1.0, 
-            'y_lateral': 0.5, 
-            'category': 'bottle', 
-            'depth': 1.2
-        },
-        {
-            'x_forward': 2.0, 
-            'y_lateral': -0.3, 
-            'category': 'cup', 
-            'depth': 1.5
-        }
-    ]
-    
-    # Sample robot positions
-    sample_positions = [
-        {'x': 0, 'y': 0, 'theta': 0, 'timestamp': 1000, 'type': 'actual'},  # Starting position
-        {'x': 0.45, 'y': 0.25, 'theta': 0.35, 'timestamp': 1010, 'type': 'actual'},  # First move
-        {'x': 0.95, 'y': 0.45, 'theta': 0.65, 'timestamp': 1020, 'type': 'actual'}   # Second move
-    ]
-    
-    # Sample target positions
-    sample_targets = [
-        {'x': 0.5, 'y': 0.2, 'theta': 0.3, 'timestamp': 1005, 'type': 'target'},  # First target
-        {'x': 1.0, 'y': 0.4, 'theta': 0.6, 'timestamp': 1015, 'type': 'target'}   # Second target
-    ]
-
-    # Create map and update with sample data
-    robot_map = PepperRobotMap(save_dir='.')
-    robot_map.update_map(sample_objects, sample_positions, sample_targets)
-    robot_map.save()
