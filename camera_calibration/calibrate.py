@@ -1,6 +1,5 @@
 import numpy as np
 import cv2
-import os
 
 # Define the checkerboard pattern size
 pattern_size = (6, 7)  # 6 rows, 7 columns
