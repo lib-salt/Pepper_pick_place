@@ -1,16 +1,12 @@
 import numpy as np
 import cv2
 import signal
-import socket
-import struct
 import threading
 import sys
 import time
-import math
 # Path to NAOqi SDK library
 sys.path.append(r"E:\pynaoqi-python2.7-2.5.5.5-win32-vs2013\pynaoqi-python2.7-2.5.5.5-win32-vs2013\lib")
 from naoqi import ALProxy, ALBroker  
-
 
 # Pepper IP address and port
 ip = '192.168.244.207'
