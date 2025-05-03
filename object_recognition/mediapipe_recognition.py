@@ -1,8 +1,6 @@
 import os
 import cv2
-import numpy as np
 import mediapipe as mp
-import matplotlib as plt
 
 # Path to mediapipe model
 script_dir = os.path.dirname(os.path.abspath(__file__))

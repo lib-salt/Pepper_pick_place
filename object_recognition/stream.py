@@ -47,9 +47,9 @@ def process_frames():
             if latest_frame is not None:
                 frame = latest_frame.copy()
             else:
-                # print("No frame available for processing.")
                 time.sleep(0.1)
                 continue  
+
         # Get the object category and center co-ordinate
         object_center, category = process_frame(frame) 
 
@@ -73,7 +73,6 @@ def send_object_location(x_cen, y_cen, category):
     except Exception as e:
         print(f"Error sending object location: {e}")
  
-
 # Start threads for receiving and processing frames
 receive_thread = threading.Thread(target=get_frames, daemon=True)
 receive_thread.start()
@@ -91,7 +90,6 @@ while True:
 
     if stop_event.is_set():
         break
-
 
 receive_thread.join()
 process_thread.join()
