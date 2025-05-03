@@ -17,7 +17,7 @@ controller = None
 
 def signal_handler(dig, frame):
     # Handle termination signal gracefully
-    logger.info("Shutdown signal rexeived, cleanig up ...")
+    logger.info("Shutdown signal received, cleanig up ...")
     if controller:
         controller.cleanup()
     sys.exit(0)
