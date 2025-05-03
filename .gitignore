@@ -1,0 +1,5 @@
+# Ignore the activity log
+activity_log.txt
+
+# Ignore all images in the calibration folder
+camera_calibration/Calibration Images
