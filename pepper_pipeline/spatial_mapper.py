@@ -71,7 +71,6 @@ class SpatialMapper:
             
             if len(depth_samples) == 0:
                 logger.warning("No valid depth data found in any sample")
-                # return None, None, []
                 return
             
             # Remove anomolies
@@ -80,7 +79,6 @@ class SpatialMapper:
             if len(filtered_samples) < max(2, samples // 2):
                 logger.warning("Too many anomalies detected: {}/{} samples removed".format(len(removed_anomalies), len(depth_samples)))
             if len(filtered_samples) == 0:
-                # return None, None, [], removed_anomalies
                 return
 
             median_depth = np.median(depth_samples)
@@ -105,7 +103,6 @@ class SpatialMapper:
             # Normalise coordinates between 0 and 1
             norm_x = x_cen / 320 # Image width
             norm_y = y_cen / 240 # Image height
-
 
             # Convert 2D array into 3D
             angular_position = self.video_proxy.getAngularPositionFromImagePosition(TOP_CAM_ID, [norm_x, norm_y])
