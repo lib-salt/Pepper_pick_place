@@ -87,7 +87,7 @@ class BehaviourController:
                 # Update map
                 self._update_map(self.detected_objects, self.actual_positions)
 
-                # Move towards object
+                # Set move values
                 x = position["x"] - 0.10 # Add distance buffer to lift arm
                 y = position["y"] + 0.15 # Additional movement to line up right arm
                 theta = position["theta"]
