@@ -1,6 +1,6 @@
+import os
 import cv2
 from ultralytics import YOLO
-import os
 import logging
 
 logging.getLogger("ultralytics").setLevel(logging.ERROR)
