@@ -31,6 +31,11 @@ class MotionController:
             logger.info("Awareness off")
             self.tilt_head()
 
+        # Turn off autonomous life completely
+        # if self.autoLife_proxy:
+            # self.autoLife_proxy.setState("disabled")
+            # self.motion_proxy.wakeUp()
+
         # Disable arm collision protection
         if self.motion_proxy:
             self.motion_proxy.setExternalCollisionProtectionEnabled("Arms", False)
@@ -77,62 +82,49 @@ class MotionController:
         
         # Times for each keyframe 
         times = [
-            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # RShoulderPitch
-            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # RShoulderRoll
-            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # RElbowYaw
-            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # RElbowRoll
-            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # RWristYaw
-            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # RHand
-            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # HipPitch
-            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # HipRoll
-            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],  # HeadPitch
-            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]   # HeadYaw
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0],  # RShoulderPitch
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0],  # RShoulderRoll
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0],  # RElbowYaw
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0],  # RElbowRoll
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0],  # RWristYaw
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0],  # RHand
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0],  # HipPitch
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0],  # HipRoll
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0],  # HeadPitch
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0]   # HeadYaw
         ]
         
         keys = [
             # RShoulderPitch 
-            [1.4, 0.5, 0.2, -0.12, -0.2, -0.12, 0.1, 0.4],
-            
-            # RShoulderRoll 
-            [-0.15, -0.2, -0.15, -0.1, -0.08, -0.08, -0.1, -0.15],
-            
-            # RElbowYaw 
-            [1.5, 1.5, 1.3, 1.1, 1.0, 1.0, 1.2, 1.5],
-            
+            [1.4, 0.6, 0.3, 0.05, -0.15, -0.08, -0.10, 0.0, 0.2, 0.4, 0.5],
+            # RShoulderRoll
+            [-0.15, -0.18, -0.15, -0.10, -0.08, -0.08, -0.10, -0.12, -0.15, -0.12, -0.10],
+            # RElbowYaw
+            [1.5, 1.4, 1.2, 1.0, 0.9, 0.9, 0.95, 1.1, 1.3, 1.4, 1.5],
             # RElbowRoll 
-            [0.3, 0.5, 0.6, 0.5, 0.4, 0.45, 0.6, 0.5],
-            
+            [0.3, 0.4, 0.5, 0.45, 0.4, 0.35, 0.4, 0.45, 0.5, 0.45, 0.4],
             # RWristYaw 
-            [0.0, 0.2, 0.3, 0.4, 0.6, 0.6, 0.4, 0.2],
-            
-            # RHand 
-            [0.6, 0.8, 0.9, 0.8, 0.0, 0.0, 0.0, 0.0],
-            
-            # HipPitch 
-            [-0.05, -0.1, -0.25, -0.5, -0.65, -0.62, -0.3, -0.1],
-            
-            # HipRoll 
-            [0.0, -0.02, -0.03, -0.04, -0.04, -0.03, -0.02, 0.0],
-            
-            # HeadPitch 
-            [0.0, -0.1, -0.2, -0.3, -0.35, -0.35, -0.2, 0.0],
-            
-            # HeadYaw 
-            [0.0, 0.1, 0.15, 0.2, 0.2, 0.2, 0.1, 0.0]
+            [0.0, 0.2, 0.3, 0.4, 0.6, 0.6, 0.6, 0.5, 0.4, 0.3, 0.2],
+            # RHand
+            [0.6, 0.7, 0.8, 0.9, 1.0, 0.3, 0.2, 0.1, 0.1, 0.1, 0.1],
+            # HipPitch
+            [-0.05, -0.05, -0.15, -0.4, -0.7, -0.7, -0.65, -0.5, -0.3, -0.15, -0.05],
+            # HipRoll
+            [0.0, -0.02, -0.04, -0.06, -0.07, -0.07, -0.06, -0.05, -0.04, -0.02, 0.0],
+            # HeadPitch
+            [0.0, -0.1, -0.2, -0.3, -0.4, -0.4, -0.35, -0.3, -0.2, -0.1, 0.0],
+            # HeadYaw
+            [0.0, 0.05, 0.1, 0.15, 0.15, 0.15, 0.15, 0.1, 0.05, 0.0, 0.0]
         ]
         
         try:
             # Add a slight weight shift before movement starts
-            self.motion_proxy.setAngles("HipRoll", 0.02, 0.1)
-            time.sleep(0.5)
+            self.motion_proxy.setAngles("HipRoll", 0.03, 0.1)
+            time.sleep(0.7)
             
             # Execute the main movement sequence
             logger.info("Starting arm grab sequence")
             self.motion_proxy.angleInterpolation(names, keys, times, True)
-            
-            # Subtle "success" movement 
-            self.motion_proxy.setAngles("RShoulderPitch", 0.3, 0.2)
-            time.sleep(0.5)
             
             logger.info("Completed arm grab sequence")
               
@@ -168,6 +160,8 @@ class MotionController:
             # Get ready to move
             self.motion_proxy.moveInit()            
             logger.info("Moving to: x={}, y={}, theta={}".format(x, y, theta))
+            start_position = self.motion_proxy.getRobotPosition(True)
+            start_theta = start_position[2]
             movement = self.navigation_proxy.navigateTo(x, y)
 
             if movement:
@@ -179,7 +173,7 @@ class MotionController:
                 current_theta = final_position[2]
 
                 # Calculate rotation to face the object
-                new_theta = theta - current_theta
+                new_theta = start_theta - current_theta
 
                 # Normalise theta into radians
                 if new_theta > math.pi:
@@ -188,6 +182,7 @@ class MotionController:
                     new_theta += 2 * math.pi
 
                 self.motion_proxy.moveTo(0, 0, new_theta)
+                self.motion_proxy.waitUntilMoveIsFinished()
 
             else:
                 logger.info("Navigation failed")
