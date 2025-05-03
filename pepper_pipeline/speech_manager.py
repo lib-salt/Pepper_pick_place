@@ -29,6 +29,8 @@ class SpeechManager:
         text = "I have reached the {}".format(category)
         self.say(text)
 
+    # Non-implemented methods
+
     def announce_searching(self):
         # Announce that Pepper is searching
         text = "I am looking for objects"
