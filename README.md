@@ -34,21 +34,29 @@ The NAOqi python SDK is available from:
 https://aldebaran.com/en/support/kb/nao6/downloads/nao6-software-downloads/  
 - Download the NAOqi Python SDK
 - Unzip and find the lib folder path
-- In `pepper_pipeline/config.py`, update this line:
+- In `pepper_pipeline/config.py`, update the following lines:
     ```
+    ROBOT_IP = 'your.pepper.robot.ip'
     NAOQI_PATH = "C:/path/to/naoqi-sdk/lib"
     ```
 - Save and close the file
 
-Further documentation and guidance:  
+Further documentation and guidance on the NAOqi SDK installation:  
 http://doc.aldebaran.com/2-8/dev/python/install_guide.html
 
 ---
 ## Running from terminal
 Open **two terminals**, and activate each environment:  
-    ```
-    conda activate "C:/path/to/environment"
-    ```
+**Terminal 1 (Python 2.7)**
+```
+conda activate "C:/path/to/python27/environment"
+python pepper_pipeline/main.py
+```
+**Terminal 2 (Python 3.12)**
+```
+conda activate "C:/path/to/python312/environment"
+python object_recognition/stream.py
+```
 
 ---
 ## Running from .bat file
