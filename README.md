@@ -37,7 +37,7 @@ https://aldebaran.com/en/support/kb/nao6/downloads/nao6-software-downloads/
 - In `pepper_pipeline/config.py`, update the following lines:
     ```
     ROBOT_IP = 'your.pepper.robot.ip'
-    NAOQI_PATH = "C:/path/to/naoqi-sdk/lib"
+    NAOQI_PATH = r"C:/path/to/naoqi-sdk/lib"
     ```
 - Save and close the file
 
