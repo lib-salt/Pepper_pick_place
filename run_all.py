@@ -4,8 +4,8 @@ import sys
 
 # === USER CONFIGURATION SECTION ===
 conda_path = r"C:\path\to\miniconda\Scripts\activate.bat" # Path to your conda activate.bat
-env_1 = r"C:\path\to\miniconda\envs\pepper27"         # Full path to Python 2.7 environment
-env_2 = "pepper3"                                     # Name of Python 3 environment
+env_1 = r"C:\path\to\miniconda\envs\pepper27"             # Full path to Python 2.7 environment
+env_2 = "pepper3"                                         # Name of Python 3 environment
 # ====================================
 
 
