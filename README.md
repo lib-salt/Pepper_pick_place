@@ -45,7 +45,7 @@ https://aldebaran.com/en/support/kb/nao6/downloads/nao6-software-downloads/
     ROBOT_IP = 'your.pepper.robot.ip'
     NAOQI_PATH = r"C:/path/to/naoqi-sdk/lib"
     ```
-- Save and close the file
+3. Save and close the file
 
 [Full NAOqi SDK install guide](http://doc.aldebaran.com/2-8/dev/python/install_guide.html)
 
