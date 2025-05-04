@@ -18,7 +18,7 @@ VIDEO_PORT = 8089
 LOCATION_PORT = 9090
 
 # Path to NAOqi libraries
-NAOQI_PATH = r"E:\pynaoqi-python2.7-2.5.5.5-win32-vs2013\pynaoqi-python2.7-2.5.5.5-win32-vs2013\lib"
+NAOQI_PATH = r"C:/path/to/naoqi-sdk/lib"
 
 # Calibration file
 CALIBRATION_FILE = 'camera_transformation.npz'
