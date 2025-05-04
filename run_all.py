@@ -3,8 +3,8 @@ import os
 import sys
 
 # === USER CONFIGURATION SECTION ===
-env_1 = r"pepper27" # Python 2.7 environment
-env_2 = "pepper3"   # Python 3 environment
+env_1 = "pepper27" # Python 2.7 environment
+env_2 = "pepper3"  # Python 3 environment
 # ====================================
 
 
