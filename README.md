@@ -29,6 +29,8 @@ For the NAOqi libraries to work, it is necessary to have a 2.7 Python enviroment
         pip install matplotlib numpy opencv-python mediapipe pillow torch ultralytics
         ```
 
+- copy and paste your Python 2.7 environment into your Anaconda envs folder you can avoid entering the environment path when activating
+
 ### NAOqi SDK
 The NAOqi python SDK is available from:  
 https://aldebaran.com/en/support/kb/nao6/downloads/nao6-software-downloads/  
@@ -49,17 +51,25 @@ http://doc.aldebaran.com/2-8/dev/python/install_guide.html
 Open **two terminals**, and activate each environment:  
 **Terminal 1 (Python 2.7)**
 ```
-conda activate "C:/path/to/python27/environment"
+conda activate pepper27
 python pepper_pipeline/main.py
 ```
 **Terminal 2 (Python 3.12)**
 ```
-conda activate "C:/path/to/python312/environment"
+conda activate pepper3
 python object_recognition/stream.py
 ```
 
 ---
-## Running from .bat file
+## Running from Python Wrapper (Create launcher)
+To start the full system with a single command:
+- Open `run_all.py` in the root folder:
+- Update the following lines in the file:
+```
+conda_path = "Path to your own activate.bat for your 32 bit environment"
+env_1 = "Full path to your Python 2.7 Conda environment"
+env_2 = "Name of your Python 3 environment"
+```
 ---
 ## object rec on computer
 ---

@@ -3,9 +3,8 @@ import os
 import sys
 
 # === USER CONFIGURATION SECTION ===
-conda_path = r"C:\path\to\miniconda\Scripts\activate.bat" # Path to your conda activate.bat
-env_1 = r"C:\path\to\miniconda\envs\pepper27"             # Full path to Python 2.7 environment
-env_2 = "pepper3"                                         # Name of Python 3 environment
+env_1 = r"pepper27" # Python 2.7 environment
+env_2 = "pepper3"   # Python 3 environment
 # ====================================
 
 
@@ -18,7 +17,7 @@ script_2 = os.path.join(base_dir, "object_recognition", "stream.py")
 # Open Terminal 1 (Python 2.7)
 subprocess.Popen([
     "cmd.exe", "/k",
-    f'call {conda_path} activate {env_1} && python {script_1}'
+    f'call conda activate {env_1} && python {script_1}'
 ])
 
 # Open Terminal 2 (Python 3.12)
