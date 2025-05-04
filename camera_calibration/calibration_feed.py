@@ -4,7 +4,7 @@ import signal
 import sys
 import time
 # Path to NAOqi SDK library
-sys.path.append(r"E:\pynaoqi-python2.7-2.5.5.5-win32-vs2013\pynaoqi-python2.7-2.5.5.5-win32-vs2013\lib")
+sys.path.append(r"C:/path/to/naoqi-sdk/lib")
 from naoqi import ALProxy, ALBroker
 
 # Robot IP
